@@ -1,55 +1,57 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from models import Base,Dev,Company,Freebie
 from faker import Faker
-from models import Base, Dev, Company, Freebie
 import random
 
 engine = create_engine('sqlite:///freebies.db')
-Session = sessionmaker(bind=engine)
+Session = sessionmaker(bind =engine)
 session = Session()
 
 faker = Faker()
 
-print("Seeding data...")
+#clear existing records
+session.query(Dev).delete()
+session.query(Company).delete()
+session.query(Freebie).delete()
+session.commit()
+
 
 def seed_data():
-    # Clear existing records
-    session.query(Freebie).delete()
-    session.query(Dev).delete()
-    session.query(Company).delete()
-    session.commit()
-
-    companies = []
+    companies =[]
     devs = []
-    freebies = []
+    freebies =[]
 
-    # Create companies
+#create companies
     for i in range(10):
-        company = Company(name=faker.company(), founding_year=faker.year())
+        company = Company(name = faker.company(), founding_year =faker.year())
         session.add(company)
         companies.append(company)
 
-    # Create developers
+#create devs
     for i in range(50):
-        dev = Dev(name=faker.name())
+        dev = Dev(name = faker.name())
         session.add(dev)
         devs.append(dev)
 
-    # Create freebies and set relationships
-    for i in range(50):
+#create freebies and set relationships
+    for i in range (50):
         dev = random.choice(devs)
         company = random.choice(companies)
         freebie = Freebie(
-            item_name=faker.name(),
-            value=random.randint(0, 100),
-            dev=dev,  # Set the dev relationship
-            company=company  # Set the company relationship
+            item_name = faker.name(),
+            value = random.randint(0,100),
+            dev =dev,#set the dev relationship
+            company =company #set the company relationship
         )
         session.add(freebie)
         freebies.append(freebie)
-
     session.commit()
-    print("Seed data generated successfully!")
 
 if __name__ == '__main__':
     seed_data()
+    print('Seed data generated successfully...')
+
+#Use ipdb for debugging
+import ipdb; ipdb.set_trace()
+    
